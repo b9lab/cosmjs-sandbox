@@ -1,8 +1,16 @@
-import { IndexedTx, StargateClient } from "@cosmjs/stargate"
+import { readFile } from "fs/promises"
+import { DirectSecp256k1HdWallet, OfflineDirectSigner } from "@cosmjs/proto-signing"
+import { IndexedTx, SigningStargateClient, StargateClient } from "@cosmjs/stargate"
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx"
 import { Tx } from "cosmjs-types/cosmos/tx/v1beta1/tx"
 
 const rpc = "https://rpc.sentry-01.theta-testnet.polypore.xyz"
+
+const getAliceSignerFromMnemonic = async (): Promise<OfflineDirectSigner> => {
+    return DirectSecp256k1HdWallet.fromMnemonic((await readFile("./testnet.alice.mnemonic.key")).toString(), {
+        prefix: "cosmos",
+    })
+}
 
 const runAll = async (): Promise<void> => {
     const client = await StargateClient.connect(rpc)
@@ -32,6 +40,17 @@ const runAll = async (): Promise<void> => {
             .attributes.find((attribute: any) => attribute.key === "spender").value
         console.log("Faucet address from raw log:", faucet)
     }
+
+    const aliceSigner: OfflineDirectSigner = await getAliceSignerFromMnemonic()
+    const alice = (await aliceSigner.getAccounts())[0].address
+    console.log("Alice's address from signer", alice)
+    const signingClient = await SigningStargateClient.connectWithSigner(rpc, aliceSigner)
+    console.log(
+        "With signing client, chain id:",
+        await signingClient.getChainId(),
+        ", height:",
+        await signingClient.getHeight()
+    )
 }
 
 runAll()
