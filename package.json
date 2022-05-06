@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "experiment": "ts-node experiment.ts",
+    "experiment-local": "ts-node experiment-local.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "B9lab",
