@@ -13,6 +13,6 @@
     "ts-node": "10.7.0"
   },
   "dependencies": {
-    "@cosmjs/stargate": "0.28.2"
+    "@cosmjs/stargate": "0.31.3"
   }
 }
